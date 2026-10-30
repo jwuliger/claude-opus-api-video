@@ -64,7 +64,7 @@ def skeleton_paths(sk):
     return [np.array([[c, r] for r, c in p], float) for p in paths]
 
 
-def join_paths(paths, gap=6.0, angle=0.6):
+def join_paths(paths, gap=3.0, angle=0.88):
     """Merge chains that continue each other through junction pixels (keeps long, flowing strokes)."""
     paths = [p for p in paths if len(p) > 2]
     merged = True
@@ -94,7 +94,7 @@ def join_paths(paths, gap=6.0, angle=0.6):
     return paths
 
 
-def smooth(p, step=4.0, s_per_pt=1.6):
+def smooth(p, step=3.0, s_per_pt=0.3):
     if len(p) < 6:
         return p
     _, idx = np.unique(p, axis=0, return_index=True)
@@ -112,7 +112,7 @@ def main():
     ap.add_argument("image")
     ap.add_argument("--preview")
     ap.add_argument("--length", type=float, default=620, help="tip-to-wrist length in design px")
-    ap.add_argument("--min", type=float, default=40, help="drop strokes shorter than this (source px)")
+    ap.add_argument("--min", type=float, default=12, help="drop strokes shorter than this (source px)")
     a = ap.parse_args()
 
     img = io.imread(a.image)
