@@ -110,11 +110,16 @@
       return true;
     };
     window.__renderFrames = async (from, to) => {
-      let pending = null;
+      let pending = null, sendWait = 0;
       for (let i = from; i < to; i++) {
+        const t0 = performance.now();
         const bytes = await drawAt(i / FPS, i, SHUTTER);
+        const draw = performance.now() - t0;
+        const t1 = performance.now();
         if (pending) await pending;
-        pending = fetch(`${server}/frame?i=${i}`, { method: 'POST', body: bytes }).then((r) => { if (!r.ok) throw new Error('frame rejected'); });
+        sendWait = performance.now() - t1;
+        pending = fetch(`${server}/frame?i=${i}&draw=${draw.toFixed(1)}&wait=${sendWait.toFixed(1)}`, { method: 'POST', body: bytes })
+          .then((r) => { if (!r.ok) throw new Error('frame rejected'); });
       }
       if (pending) await pending;
       return true;

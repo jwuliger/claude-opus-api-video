@@ -45,7 +45,8 @@ your GPU: try `npm run render -- --headed` or `npm run render -- --browser msedg
 | `npm run render:1080` | 1920×1080, 60 fps → `out/live-motion-labs-promo-1080p.mp4` |
 | `npm run render:draft` | Quick 720p, 30 fps check → `out/draft-720p.mp4` |
 | `npm run render -- --from 20 --to 26` | Only seconds 20 to 26 |
-| `npm run render -- --encoder nvenc` | NVIDIA hardware encoder (also `videotoolbox` on Mac, `qsv`, `amf`) |
+| `npm run render -- --encoder x264 --preset slow` | CPU encoder (slow at 4K). By default the GPU's hardware encoder is used when available (NVENC, VideoToolbox, Quick Sync, AMF) |
+| `npm run render -- --ffmpeg C:\\ffmpeg\\bin\\ffmpeg.exe` | Use a specific ffmpeg |
 | `npm run render -- --crf 14` | Higher quality, bigger file (default 16 for 4K) |
 
 If Playwright cannot find a browser, run `npx playwright install chromium` once, or install Google Chrome.
