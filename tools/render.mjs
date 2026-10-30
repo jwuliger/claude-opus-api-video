@@ -10,7 +10,7 @@
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { build } from './build.mjs';
 
@@ -25,10 +25,25 @@ const CRF = opt('crf', W >= 3840 ? '16' : '17');
 const PRESET = opt('preset', 'slow');
 const ENC = opt('encoder', 'x264');
 
+// Find a working ffmpeg: --ffmpeg <path>, then the ffmpeg-static package (downloading its binary if npm skipped
+// that step), then ffmpeg on PATH. Fails early with clear instructions, before any rendering starts.
 async function ffmpegPath() {
+  const works = (p) => { try { return spawnSync(p, ['-version'], { stdio: 'ignore' }).status === 0; } catch { return false; } };
   if (opt('ffmpeg')) return opt('ffmpeg');
-  try { const m = await import('ffmpeg-static'); if (m.default) return m.default; } catch { /* fall back to PATH */ }
-  return 'ffmpeg';
+  let bundled = null;
+  try { bundled = (await import('ffmpeg-static')).default; } catch { /* package not installed */ }
+  if (bundled && !fs.existsSync(bundled)) {
+    const installer = path.join(ROOT, 'node_modules', 'ffmpeg-static', 'install.js');
+    if (fs.existsSync(installer)) {
+      console.log('Downloading the ffmpeg binary (npm skipped this step during install)...');
+      spawnSync(process.execPath, [installer], { cwd: path.dirname(installer), stdio: 'inherit' });
+    }
+  }
+  if (bundled && fs.existsSync(bundled) && works(bundled)) return bundled;
+  if (works('ffmpeg')) return 'ffmpeg';
+  throw new Error('ffmpeg was not found.\n' +
+    '  Fix: run  npm rebuild ffmpeg-static  (downloads the bundled ffmpeg), or install ffmpeg\n' +
+    '  (Windows: winget install Gyan.FFmpeg, macOS: brew install ffmpeg), or pass --ffmpeg <path to ffmpeg>.');
 }
 async function loadPlaywright() {
   try { return await import('playwright'); } catch { /* try CommonJS global */ }
@@ -49,6 +64,8 @@ function videoArgs() {
 
 async function main() {
   const t0 = Date.now();
+  const ff = await ffmpegPath();
+  console.log(`ffmpeg: ${ff}`);
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   const { out: page } = build(path.join(ROOT, 'out', 'render-page.html'));
   const html = fs.readFileSync(page);
@@ -112,7 +129,6 @@ async function main() {
   });
 
   // 2) video frames -> ffmpeg
-  const ff = await ffmpegPath();
   const ffArgs = [
     '-y', '-hide_banner', '-loglevel', 'error', '-stats',
     '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', `${W}x${H}`, '-framerate', String(FPS), '-i', 'pipe:0',
@@ -124,7 +140,11 @@ async function main() {
     '-movflags', '+faststart', '-shortest', OUT,
   ];
   const proc = spawn(ff, ffArgs, { stdio: ['pipe', 'inherit', 'inherit'] });
-  const ffDone = new Promise((r, j) => proc.on('close', (c) => (c === 0 ? r() : j(new Error('ffmpeg exited with ' + c)))));
+  const ffDone = new Promise((r, j) => {
+    proc.on('error', (e) => j(new Error(`could not start ffmpeg (${e.message})`)));
+    proc.on('close', (c) => (c === 0 ? r() : j(new Error('ffmpeg exited with ' + c))));
+  });
+  ffDone.catch(() => {});
   let n = 0, next = from;
   const tStart = Date.now();
   onFrame = async (body, i) => {
