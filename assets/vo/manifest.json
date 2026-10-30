@@ -1,0 +1,734 @@
+{
+ "vo01": {
+  "voice": "bf_emma",
+  "text": "Your song is one of a kind.",
+  "heard": "Your song is one of a kind.",
+  "dur": 1.81,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "Your",
+    "s": 0.0,
+    "e": 0.26,
+    "p": 0.813
+   },
+   {
+    "w": "song",
+    "s": 0.26,
+    "e": 0.66,
+    "p": 0.987
+   },
+   {
+    "w": "is",
+    "s": 0.66,
+    "e": 0.92,
+    "p": 0.998
+   },
+   {
+    "w": "one",
+    "s": 0.92,
+    "e": 1.06,
+    "p": 0.994
+   },
+   {
+    "w": "of",
+    "s": 1.06,
+    "e": 1.16,
+    "p": 0.936
+   },
+   {
+    "w": "a",
+    "s": 1.16,
+    "e": 1.24,
+    "p": 0.996
+   },
+   {
+    "w": "kind.",
+    "s": 1.24,
+    "e": 1.6,
+    "p": 1.0
+   }
+  ]
+ },
+ "vo02": {
+  "voice": "bf_emma",
+  "text": "Its video should be too.",
+  "heard": "Its video should be too.",
+  "dur": 1.51,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "Its",
+    "s": 0.0,
+    "e": 0.24,
+    "p": 0.436
+   },
+   {
+    "w": "video",
+    "s": 0.24,
+    "e": 0.6,
+    "p": 0.984
+   },
+   {
+    "w": "should",
+    "s": 0.6,
+    "e": 0.8,
+    "p": 0.998
+   },
+   {
+    "w": "be",
+    "s": 0.8,
+    "e": 0.98,
+    "p": 0.999
+   },
+   {
+    "w": "too.",
+    "s": 0.98,
+    "e": 1.32,
+    "p": 0.893
+   }
+  ]
+ },
+ "vo03": {
+  "voice": "bf_emma",
+  "text": "Live Motion Labs hears your song the way a musician does.",
+  "heard": "Live Motion Labs hears your song the way a musician does.",
+  "dur": 3.15,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "Live",
+    "s": 0.0,
+    "e": 0.26,
+    "p": 0.957
+   },
+   {
+    "w": "Motion",
+    "s": 0.26,
+    "e": 0.68,
+    "p": 0.517
+   },
+   {
+    "w": "Labs",
+    "s": 0.68,
+    "e": 1.06,
+    "p": 0.993
+   },
+   {
+    "w": "hears",
+    "s": 1.06,
+    "e": 1.34,
+    "p": 0.978
+   },
+   {
+    "w": "your",
+    "s": 1.34,
+    "e": 1.58,
+    "p": 0.989
+   },
+   {
+    "w": "song",
+    "s": 1.58,
+    "e": 1.84,
+    "p": 0.996
+   },
+   {
+    "w": "the",
+    "s": 1.84,
+    "e": 2.0,
+    "p": 0.978
+   },
+   {
+    "w": "way",
+    "s": 2.0,
+    "e": 2.14,
+    "p": 1.0
+   },
+   {
+    "w": "a",
+    "s": 2.14,
+    "e": 2.26,
+    "p": 0.998
+   },
+   {
+    "w": "musician",
+    "s": 2.26,
+    "e": 2.6,
+    "p": 0.986
+   },
+   {
+    "w": "does.",
+    "s": 2.6,
+    "e": 2.98,
+    "p": 0.999
+   }
+  ]
+ },
+ "vo04": {
+  "voice": "bf_emma",
+  "text": "Every beat.",
+  "heard": "every beat",
+  "dur": 1.01,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "every",
+    "s": 0.0,
+    "e": 0.36,
+    "p": 0.476
+   },
+   {
+    "w": "beat",
+    "s": 0.36,
+    "e": 0.78,
+    "p": 0.711
+   }
+  ]
+ },
+ "vo05": {
+  "voice": "bf_emma",
+  "text": "Every chord change.",
+  "heard": "every chord changer.",
+  "dur": 1.36,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "every",
+    "s": 0.0,
+    "e": 0.3,
+    "p": 0.508
+   },
+   {
+    "w": "chord",
+    "s": 0.3,
+    "e": 0.66,
+    "p": 0.999
+   },
+   {
+    "w": "changer.",
+    "s": 0.66,
+    "e": 1.34,
+    "p": 0.735
+   }
+  ]
+ },
+ "vo06": {
+  "voice": "bf_emma",
+  "text": "And every word, the moment it's sung.",
+  "heard": "and every word the moment it's sung.",
+  "dur": 2.01,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "and",
+    "s": 0.0,
+    "e": 0.2,
+    "p": 0.714
+   },
+   {
+    "w": "every",
+    "s": 0.2,
+    "e": 0.46,
+    "p": 0.995
+   },
+   {
+    "w": "word",
+    "s": 0.46,
+    "e": 0.84,
+    "p": 0.999
+   },
+   {
+    "w": "the",
+    "s": 0.84,
+    "e": 1.02,
+    "p": 0.993
+   },
+   {
+    "w": "moment",
+    "s": 1.02,
+    "e": 1.32,
+    "p": 1.0
+   },
+   {
+    "w": "it's",
+    "s": 1.32,
+    "e": 1.66,
+    "p": 0.935
+   },
+   {
+    "w": "sung.",
+    "s": 1.66,
+    "e": 1.84,
+    "p": 0.998
+   }
+  ]
+ },
+ "lyric": {
+  "voice": "bf_emma",
+  "text": "Watch my words become the light.",
+  "heard": "Watch my words become the light.",
+  "dur": 2.03,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "Watch",
+    "s": 0.0,
+    "e": 0.3,
+    "p": 0.732
+   },
+   {
+    "w": "my",
+    "s": 0.3,
+    "e": 0.6,
+    "p": 0.958
+   },
+   {
+    "w": "words",
+    "s": 0.6,
+    "e": 1.0,
+    "p": 0.989
+   },
+   {
+    "w": "become",
+    "s": 1.0,
+    "e": 1.34,
+    "p": 0.996
+   },
+   {
+    "w": "the",
+    "s": 1.34,
+    "e": 1.54,
+    "p": 0.995
+   },
+   {
+    "w": "light.",
+    "s": 1.54,
+    "e": 1.84,
+    "p": 0.979
+   }
+  ]
+ },
+ "vo07": {
+  "voice": "bf_emma",
+  "text": "No AI-generated video. No templates. No stock footage.",
+  "heard": "No AI-generated video, no templates, no stock footage.",
+  "dur": 3.97,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "No",
+    "s": 0.0,
+    "e": 0.26,
+    "p": 0.71
+   },
+   {
+    "w": "AI",
+    "s": 0.26,
+    "e": 0.66,
+    "p": 0.975
+   },
+   {
+    "w": "-generated",
+    "s": 0.66,
+    "e": 1.18,
+    "p": 0.733
+   },
+   {
+    "w": "video,",
+    "s": 1.18,
+    "e": 1.64,
+    "p": 0.989
+   },
+   {
+    "w": "no",
+    "s": 2.1,
+    "e": 2.24,
+    "p": 0.898
+   },
+   {
+    "w": "templates,",
+    "s": 2.24,
+    "e": 2.76,
+    "p": 0.99
+   },
+   {
+    "w": "no",
+    "s": 3.02,
+    "e": 3.12,
+    "p": 0.995
+   },
+   {
+    "w": "stock",
+    "s": 3.12,
+    "e": 3.38,
+    "p": 0.998
+   },
+   {
+    "w": "footage.",
+    "s": 3.38,
+    "e": 3.66,
+    "p": 0.999
+   }
+  ]
+ },
+ "vo08": {
+  "voice": "bf_emma",
+  "text": "Every frame is drawn live, in code, from your song.",
+  "heard": "Every frame is drawn live in code from your song.",
+  "dur": 2.82,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "Every",
+    "s": 0.0,
+    "e": 0.26,
+    "p": 0.908
+   },
+   {
+    "w": "frame",
+    "s": 0.26,
+    "e": 0.56,
+    "p": 0.97
+   },
+   {
+    "w": "is",
+    "s": 0.56,
+    "e": 0.76,
+    "p": 0.998
+   },
+   {
+    "w": "drawn",
+    "s": 0.76,
+    "e": 1.0,
+    "p": 0.998
+   },
+   {
+    "w": "live",
+    "s": 1.0,
+    "e": 1.44,
+    "p": 0.992
+   },
+   {
+    "w": "in",
+    "s": 1.44,
+    "e": 1.66,
+    "p": 0.966
+   },
+   {
+    "w": "code",
+    "s": 1.66,
+    "e": 2.0,
+    "p": 0.993
+   },
+   {
+    "w": "from",
+    "s": 2.0,
+    "e": 2.26,
+    "p": 0.988
+   },
+   {
+    "w": "your",
+    "s": 2.26,
+    "e": 2.4,
+    "p": 0.999
+   },
+   {
+    "w": "song.",
+    "s": 2.4,
+    "e": 2.7,
+    "p": 0.986
+   }
+  ]
+ },
+ "vo09": {
+  "voice": "bf_emma",
+  "text": "So no two videos are ever alike.",
+  "heard": "so no two videos are ever alike.",
+  "dur": 2.08,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "so",
+    "s": 0.0,
+    "e": 0.22,
+    "p": 0.876
+   },
+   {
+    "w": "no",
+    "s": 0.22,
+    "e": 0.4,
+    "p": 0.977
+   },
+   {
+    "w": "two",
+    "s": 0.4,
+    "e": 0.68,
+    "p": 0.929
+   },
+   {
+    "w": "videos",
+    "s": 0.68,
+    "e": 1.1,
+    "p": 0.997
+   },
+   {
+    "w": "are",
+    "s": 1.1,
+    "e": 1.28,
+    "p": 0.998
+   },
+   {
+    "w": "ever",
+    "s": 1.28,
+    "e": 1.52,
+    "p": 0.999
+   },
+   {
+    "w": "alike.",
+    "s": 1.52,
+    "e": 1.82,
+    "p": 0.986
+   }
+  ]
+ },
+ "vo10": {
+  "voice": "bf_emma",
+  "text": "Wide. Tall. Square. Up to four K, at sixty frames per second.",
+  "heard": "wide tall square, up to 4K at 60 frames per second.",
+  "dur": 3.82,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "wide",
+    "s": 0.0,
+    "e": 0.36,
+    "p": 0.676
+   },
+   {
+    "w": "tall",
+    "s": 0.36,
+    "e": 0.72,
+    "p": 0.783
+   },
+   {
+    "w": "square,",
+    "s": 0.72,
+    "e": 1.16,
+    "p": 0.993
+   },
+   {
+    "w": "up",
+    "s": 1.52,
+    "e": 1.62,
+    "p": 0.997
+   },
+   {
+    "w": "to",
+    "s": 1.62,
+    "e": 1.82,
+    "p": 0.998
+   },
+   {
+    "w": "4K",
+    "s": 1.82,
+    "e": 2.22,
+    "p": 0.804
+   },
+   {
+    "w": "at",
+    "s": 2.22,
+    "e": 2.44,
+    "p": 0.961
+   },
+   {
+    "w": "60",
+    "s": 2.44,
+    "e": 2.76,
+    "p": 0.995
+   },
+   {
+    "w": "frames",
+    "s": 2.76,
+    "e": 3.1,
+    "p": 0.949
+   },
+   {
+    "w": "per",
+    "s": 3.1,
+    "e": 3.3,
+    "p": 0.989
+   },
+   {
+    "w": "second.",
+    "s": 3.3,
+    "e": 3.64,
+    "p": 0.999
+   }
+  ]
+ },
+ "vo11": {
+  "voice": "bf_emma",
+  "text": "Plus a release pack for every platform.",
+  "heard": "plus a release pack for every platform.",
+  "dur": 2.13,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "plus",
+    "s": 0.0,
+    "e": 0.2,
+    "p": 0.735
+   },
+   {
+    "w": "a",
+    "s": 0.2,
+    "e": 0.38,
+    "p": 0.994
+   },
+   {
+    "w": "release",
+    "s": 0.38,
+    "e": 0.66,
+    "p": 0.981
+   },
+   {
+    "w": "pack",
+    "s": 0.66,
+    "e": 0.96,
+    "p": 0.987
+   },
+   {
+    "w": "for",
+    "s": 0.96,
+    "e": 1.18,
+    "p": 0.998
+   },
+   {
+    "w": "every",
+    "s": 1.18,
+    "e": 1.44,
+    "p": 0.998
+   },
+   {
+    "w": "platform.",
+    "s": 1.44,
+    "e": 1.86,
+    "p": 0.996
+   }
+  ]
+ },
+ "vo12": {
+  "voice": "bf_emma",
+  "text": "Live Motion Labs. Lyric videos, drawn in light and color.",
+  "heard": "Live Motion Labs, lyric videos drawn in light and color.",
+  "dur": 3.72,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "Live",
+    "s": 0.0,
+    "e": 0.3,
+    "p": 0.774
+   },
+   {
+    "w": "Motion",
+    "s": 0.3,
+    "e": 0.7,
+    "p": 0.661
+   },
+   {
+    "w": "Labs,",
+    "s": 0.7,
+    "e": 1.22,
+    "p": 0.99
+   },
+   {
+    "w": "lyric",
+    "s": 1.76,
+    "e": 1.92,
+    "p": 0.544
+   },
+   {
+    "w": "videos",
+    "s": 1.92,
+    "e": 2.44,
+    "p": 0.995
+   },
+   {
+    "w": "drawn",
+    "s": 2.44,
+    "e": 2.76,
+    "p": 0.997
+   },
+   {
+    "w": "in",
+    "s": 2.76,
+    "e": 2.94,
+    "p": 0.999
+   },
+   {
+    "w": "light",
+    "s": 2.94,
+    "e": 3.2,
+    "p": 0.995
+   },
+   {
+    "w": "and",
+    "s": 3.2,
+    "e": 3.36,
+    "p": 0.992
+   },
+   {
+    "w": "color.",
+    "s": 3.36,
+    "e": 3.58,
+    "p": 0.671
+   }
+  ]
+ },
+ "vo13": {
+  "voice": "bf_emma",
+  "text": "Get early access at live motion labs dot com.",
+  "heard": "Get early access at LiveMotionLabs.com",
+  "dur": 2.76,
+  "sr": 24000,
+  "words": [
+   {
+    "w": "Get",
+    "s": 0.0,
+    "e": 0.16,
+    "p": 0.584
+   },
+   {
+    "w": "early",
+    "s": 0.16,
+    "e": 0.48,
+    "p": 0.958
+   },
+   {
+    "w": "access",
+    "s": 0.48,
+    "e": 0.92,
+    "p": 0.998
+   },
+   {
+    "w": "at",
+    "s": 0.92,
+    "e": 1.14,
+    "p": 0.992
+   },
+   {
+    "w": "LiveMotionLabs",
+    "s": 1.14,
+    "e": 2.08,
+    "p": 0.856
+   },
+   {
+    "w": ".com",
+    "s": 2.08,
+    "e": 2.64,
+    "p": 0.994
+   }
+  ]
+ }
+}

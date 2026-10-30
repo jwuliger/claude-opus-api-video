@@ -12,14 +12,14 @@ import pathlib
 
 import numpy as np
 import soundfile as sf
+from scipy.signal import resample_poly
 from kokoro_onnx import Kokoro
 from faster_whisper import WhisperModel
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "vo"
 
-NARRATOR = "bf_emma"   # British, calm and warm
-SINGER = "am_michael"  # the "artist" voice for the lyric line
+NARRATOR = "bf_emma"   # British, calm and warm. One voice for the whole film.
 
 # Every line of the script. `text` is what Kokoro reads; `display` is the script text.
 LINES = [
@@ -27,9 +27,10 @@ LINES = [
     dict(id="vo02", voice=NARRATOR, speed=0.9, text="Its video should be too."),
     dict(id="vo03", voice=NARRATOR, speed=0.92, text="Live Motion Labs hears your song the way a musician does."),
     dict(id="vo04", voice=NARRATOR, speed=0.9, text="Every beat."),
-    dict(id="vo05", voice=NARRATOR, speed=0.9, text="Every chord."),
+    dict(id="vo05", voice=NARRATOR, speed=0.9, text="Every chord change."),
     dict(id="vo06", voice=NARRATOR, speed=0.92, text="And every word, the moment it's sung."),
-    dict(id="lyric", voice=SINGER, speed=0.8, text="Watch my words become the light."),
+    # Spoken (not sung) line whose words draw on screen as they are heard.
+    dict(id="lyric", voice=NARRATOR, speed=0.86, text="Watch my words become the light."),
     dict(id="vo07", voice=NARRATOR, speed=0.92, text="No AI-generated video. No templates. No stock footage."),
     dict(id="vo08", voice=NARRATOR, speed=0.92, text="Every frame is drawn live, in code, from your song."),
     dict(id="vo09", voice=NARRATOR, speed=0.92, text="So no two videos are ever alike."),
@@ -80,7 +81,7 @@ def main():
         wav = OUT / f"{line['id']}.wav"
         sf.write(wav, audio, sr, subtype="PCM_16")
 
-        segments, _ = whisper.transcribe(str(wav), word_timestamps=True, beam_size=5, language="en")
+        segments, _ = whisper.transcribe(resample_poly(audio, 2, 3).astype(np.float32), word_timestamps=True, beam_size=5, language="en")
         words = []
         heard = []
         for seg in segments:
