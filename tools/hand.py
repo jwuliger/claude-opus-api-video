@@ -87,7 +87,7 @@ def trace(parts, order, tip, res=0.25):
                 out.append(np.array(cur)); cur = []
         if cur:
             out.append(np.array(cur))
-        return [r for r in out if len(r) > 60]
+        return [r for r in out if len(r) > 24]
 
     def at(d, line):
         ix = np.clip(((line[:, 0] - xs[0]) / res).astype(int), 0, len(xs) - 1)
@@ -113,13 +113,42 @@ def trace(parts, order, tip, res=0.25):
                 keep &= at(sdf["palm"], line) > 2.0
             elif k in fingers:
                 keep &= at(sdf["palm"], line) > 2.0
-                behind = [f for f in fingers if f != k]
-                # only the edge that faces the viewer side of the fist
-                keep &= np.min([at(sdf[f], line) for f in behind], axis=0) < 6.0
+                keep &= at(sdf["index"], line) > 1.0
             elif k == "palm":
                 keep &= np.zeros(len(line), bool)
             for r in runs_of(line, keep):
                 lines.append((k, r))
+    def bone_frame(cap, u):
+        a, b, ra, rb = cap
+        d = (b - a) / np.linalg.norm(b - a)
+        n = np.array([d[1], -d[0]])  # +n points to the back of the hand (+x side when pointing down)
+        return a + (b - a) * u, d, n, ra + (rb - ra) * u
+
+    def arc(c, d, n, r, a0, a1, k=24):
+        return np.array([c + r * (np.cos(t) * n + np.sin(t) * d) for t in np.linspace(a0, a1, k)])
+
+    # fingernail: on the back of the finger, near the tip
+    for name in ("index", "thumb"):
+        cap = parts[name][-1]
+        c, d, n, r = bone_frame(cap, 0.55)
+        L = np.linalg.norm(cap[1] - cap[0])
+        side = n if name == "index" else -n
+        base = c + side * r * 0.45
+        nail = np.array([base + side * r * 0.42 * np.sin(t) + d * (L * 0.42) * (np.cos(t) * 0.5 + 0.35) for t in np.linspace(0.15, np.pi - 0.15, 20)])
+        lines.append((name + "-nail", nail))
+    # knuckle creases: short curved strokes across the back of each joint of the extended finger
+    for name, joints in (("index", (1, 2)),):
+        for j in joints:
+            cap = parts[name][j]
+            c, d, n, r = bone_frame(cap, 0.0)
+            for off in (-0.9, 0.9):
+                cc = c + d * off
+                lines.append((name + "-crease", arc(cc - n * r * 0.15, d, n, r * 0.85, -0.55, 0.55, 10)))
+    # knuckles of the curled fingers: little rounded marks where they fold
+    for name in ("middle", "ring", "little"):
+        cap = parts[name][1]
+        c, d, n, r = bone_frame(cap, 0.08)
+        lines.append((name + "-knuckle", arc(c, d, n, r * 0.7, 2.3, 3.6, 10)))
     return [(k, r - tip) for k, r in lines]
 
 
@@ -149,10 +178,10 @@ def main():
         import matplotlib
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
-        fig = plt.figure(figsize=(5, 8), facecolor="#05070b")
+        fig = plt.figure(figsize=(7, 11), facecolor="#05070b")
         ax = fig.add_axes([0, 0, 1, 1]); ax.set_facecolor("#05070b")
         for l in out:
-            p = np.array(l["pts"]); ax.plot(p[:, 0], p[:, 1], color="#cfe0ff", lw=1.6)
+            p = np.array(l["pts"]); ax.plot(p[:, 0], p[:, 1], color="#cfe0ff", lw=2.0 if l["part"] == "outline" else 1.4)
         ax.set_aspect("equal"); ax.invert_yaxis(); ax.axis("off")
         plt.savefig(a.preview, dpi=90, facecolor="#05070b")
 
