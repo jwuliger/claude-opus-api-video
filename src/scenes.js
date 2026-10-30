@@ -13,6 +13,7 @@
   const UI = { glow: 3.2, soft: 4, halo: 0.45, white: 0.3 };       // hairline "UI" light
   const RIB = { glow: 6, soft: 6.5, halo: 0.55, white: 0.4 };      // ribbon strands
   const TUBE = { glow: 3.4, soft: 3.2, halo: 0.6, white: 0.62 };   // logo light-tube
+  const PEN = { glow: 3.0, soft: 4.5, halo: 0.38, white: 0.6 };     // fine ink: keeps close lines apart
 
   const hash = (x) => { const s = Math.sin(x * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
   const rgbCss = (c, a = 1) => `rgba(${c.map((v) => Math.round(255 * Math.pow(Math.min(1, v), 1 / 2.2))).join(',')},${a})`;
@@ -50,11 +51,15 @@
       this.b = b;
       this.drop = S.firstDrop;
       this.end = S.DURATION;
-      // the musician's hand: anatomical line art traced by tools/hand.py (mm, finger tip at the origin)
-      this.hand = assets.hand.lines.map((l) => resample(l.pts.map(([x, y]) => [x * 3.05, y * 3.05]), 3));
-      this.button = { c: [958, 650], r: 92 };
-      this.buttonCircle = circle(958, 650, 92, -2.2);
-      this.buttonTri = resample([[936, 614], [1002, 650], [936, 686], [936, 614]].map((p) => p), 3);
+      // the musician's hand: line art redrawn from a reference by tools/trace_hand.py (design px, finger tip at the origin)
+      this.hand = assets.hand.lines.map((l, i) => {
+        let pts = l.pts;
+        if (i < 2 && pts[0][1] > pts[pts.length - 1][1]) pts = pts.slice().reverse(); // outlines start at the wrist
+        return resample(pts.map(([x, y]) => [x * 1.45, y * 1.45]), 3);
+      });
+      this.button = { c: [958, 800], r: 92 };
+      this.buttonCircle = circle(958, 800, 92, -2.2);
+      this.buttonTri = resample([[936, 764], [1002, 800], [936, 836], [936, 764]], 3);
       // logo mark (brand), centred and scaled
       const L = assets.logo;
       const ls = 3.5;
@@ -121,12 +126,12 @@
       const hit = (t0, k, dec = 0.35) => (t >= t0 ? k * Math.exp(-(t - t0) / dec) * Math.min(1, (t - t0) / 0.02) : 0);
       if (t < d) {
         const u = ease.inOutSine(clamp(t / d));
-        return { x: lerp(1030, 990, u), y: lerp(360, 452, u), zoom: lerp(1.18, 1.3, u) + hit(d - 0.12, -0.012, 0.1), rot: lerp(-0.03, -0.008, u) };
+        return { x: lerp(1040, 1000, u), y: lerp(420, 500, u), zoom: lerp(0.96, 1.06, u) + hit(d - 0.12, -0.012, 0.1), rot: lerp(-0.03, -0.008, u) };
       }
       if (t < b(7)) {
         const u = ease.outQuint(clamp((t - d) / 2.0));
         const dr = drift(u);
-        return { x: lerp(990, dr.x, u), y: lerp(452, dr.y, u), zoom: lerp(1.3, 1.0, u) + 0.004 * (t - d) * u + hit(d, 0.05, 0.25), rot: lerp(-0.008, dr.rot, u) };
+        return { x: lerp(1000, dr.x, u), y: lerp(500, dr.y, u), zoom: lerp(1.06, 1.0, u) + 0.004 * (t - d) * u + hit(d, 0.05, 0.25), rot: lerp(-0.008, dr.rot, u) };
       }
       if (t < b(10)) {
         const u = ease.inOutSine(clamp((t - b(7)) / (b(9) - b(7))));
@@ -277,10 +282,12 @@
       // a single spark appears, then becomes the line
       if (t < 0.6) spark(R, hm, outline.p[0], outline.p[1], 2.2, C.ice, 7 * smooth(0.12, 0.4, t));
       const draw = (path, t0, t1, w, seed, extra = {}) => stroke(R, path, {
-        m: hm, t, seed, w, col, gain: 1.6, reveal: ease.inOut(clamp((t - t0) / (t1 - t0))), from: erase, ...extra,
+        m: hm, t, seed, w, col, gain: 1.45, reveal: ease.inOut(clamp((t - t0) / (t1 - t0))), from: erase, style: PEN, boil: 0.8, ...extra,
       });
-      draw(outline, 0.3, 2.75, 1.9, 1, { taper: 0.04 });
-      inner.forEach((p, i) => draw(p, 2.35 + i * 0.12, 2.85 + i * 0.12, 1.5, 2 + i));
+      draw(outline, 0.3, 2.0, 1.55, 1, { taper: 0.04 });
+      if (inner[0]) draw(inner[0], 0.55, 2.2, 1.55, 2, { taper: 0.04 });
+      const det = inner.slice(1);
+      det.forEach((p, i) => { const t0 = 1.55 + (i / Math.max(1, det.length)) * 1.2; draw(p, t0, t0 + 0.42, 1.1, 3 + i); });
     }
 
     drawButton(t, m) {
@@ -365,7 +372,7 @@
       const morph = ease.inOutSine(clamp((t - (d + 0.7)) / 1.8));
       // during the lyric the ribbon sinks and calms, then returns for the chorus
       const sink = ease.inOutSine(clamp((t - b(7) - 0.2) / 1.6)) * (1 - ease.outQuint(clamp((t - b(9)) / 0.6)) * 0.55);
-      const cy = lerp(lerp(650, 545, morph), 870, sink);
+      const cy = lerp(lerp(800, 545, morph), 870, sink);
       const gain = lerp(1, 0.5, sink) * (1 - smooth(b(10) - 0.12, b(10), t));
       const chorus = smooth(b(9) - 0.05, b(9) + 0.3, t);
       this.ribbon(m, t, {
