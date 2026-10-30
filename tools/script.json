@@ -1,17 +1,69 @@
 [
- {"id": "vo01", "text": "Your song is one of a kind."},
- {"id": "vo02", "text": "Its video should be too."},
- {"id": "vo03", "text": "Live Motion Labs hears your song the way a musician does."},
- {"id": "vo04", "text": "Every beat."},
- {"id": "vo05", "text": "Every chord change."},
- {"id": "vo06", "text": "And every word, the moment it's sung."},
- {"id": "lyric", "text": "Watch my words become the light."},
- {"id": "vo07", "text": "No AI-generated video. No templates. No stock footage."},
- {"id": "vo08", "text": "Every frame is drawn live, in code, from your song."},
- {"id": "vo09", "text": "So no two videos are ever alike."},
- {"id": "vo10", "text": "Wide. Tall. Square. Up to four K, at sixty frames per second."},
- {"id": "vo11", "text": "Plus a release pack for every platform."},
- {"id": "vo12", "text": "Lyric videos, drawn in light and color."},
- {"id": "vo13", "text": "Live Motion Labs."},
- {"id": "vo14", "text": "Get early access at live motion labs dot com."}
+ {
+  "id": "vo01",
+  "text": "Your song is one of a kind."
+ },
+ {
+  "id": "vo02",
+  "text": "Its video should be too."
+ },
+ {
+  "id": "vo03",
+  "text": "Live Motion Labs hears your song the way a musician does."
+ },
+ {
+  "id": "vo04",
+  "text": "Every beat."
+ },
+ {
+  "id": "vo05",
+  "text": "Every chord change."
+ },
+ {
+  "id": "vo06",
+  "text": "And every word, the moment it's sung."
+ },
+ {
+  "id": "lyric",
+  "text": "Watch my words become the light."
+ },
+ {
+  "id": "vo07",
+  "text": "No AI-generated video. No templates. No stock footage."
+ },
+ {
+  "id": "vo08",
+  "text": "Every frame is drawn live, in code."
+ },
+ {
+  "id": "vo09",
+  "text": "So no two videos are ever alike."
+ },
+ {
+  "id": "vo10",
+  "text": "Wide. Tall. Square. Up to four K, at sixty frames per second.",
+  "parts": [
+   "Wide.",
+   "Tall.",
+   "Square.",
+   "Up to four K, at sixty frames per second."
+  ],
+  "gap": 0.15
+ },
+ {
+  "id": "vo11",
+  "text": "Plus a release pack for every platform."
+ },
+ {
+  "id": "vo12",
+  "text": "Lyric videos, drawn in light and color."
+ },
+ {
+  "id": "vo13",
+  "text": "Live Motion Labs."
+ },
+ {
+  "id": "vo14",
+  "text": "Get early access at live motion labs dot com."
+ }
 ]

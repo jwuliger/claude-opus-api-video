@@ -5,7 +5,9 @@ Reads assets/vo/raw/<id>.wav, writes assets/vo/<id>.wav (mono, trimmed, -1 dBFS 
 assets/vo/manifest.json with each clip's duration and word timings (seconds from clip start).
 """
 import argparse
+import difflib
 import json
+import re
 import pathlib
 
 import numpy as np
@@ -33,6 +35,37 @@ def trim(audio, sr, thresh_db=-45.0, pad=0.03):
     return out
 
 
+def norm(w):
+    return re.sub(r"[^a-z0-9']", "", w.lower())
+
+
+def to_script_words(text, heard):
+    """Map Whisper's word timings onto the script's own words (handles accents and merged words)."""
+    script = text.replace("-", " ").split()
+    sn = [norm(w) for w in script]
+    hn = [norm(w["w"]) for w in heard]
+    out = [None] * len(script)
+    for op, a0, a1, b0, b1 in difflib.SequenceMatcher(None, sn, hn, autojunk=False).get_opcodes():
+        if op == "equal" or (op == "replace" and a1 - a0 == b1 - b0):
+            for k in range(a1 - a0):
+                h = heard[b0 + k]
+                out[a0 + k] = dict(w=script[a0 + k], s=h["s"], e=h["e"], p=h["p"])
+        elif op == "replace":
+            s0, e0 = heard[b0]["s"], heard[b1 - 1]["e"]
+            lens = [max(1, len(sn[i])) for i in range(a0, a1)]
+            acc = s0
+            for k, i in enumerate(range(a0, a1)):
+                d = (e0 - s0) * lens[k] / sum(lens)
+                out[i] = dict(w=script[i], s=round(acc, 3), e=round(acc + d, 3), p=0.5)
+                acc += d
+    for i in range(len(out)):  # words Whisper dropped: place them between neighbours
+        if out[i] is None:
+            prev = next((out[j]["e"] for j in range(i - 1, -1, -1) if out[j]), 0.0)
+            nxt = next((out[j]["s"] for j in range(i + 1, len(out)) if out[j]), prev + 0.2)
+            out[i] = dict(w=script[i], s=round(prev, 3), e=round(max(prev, nxt), 3), p=0.0)
+    return out
+
+
 ap = argparse.ArgumentParser()
 ap.add_argument("--whisper", default="medium.en")
 ap.add_argument("--whisper-root")
@@ -54,6 +87,7 @@ for line in script:
         heard.append(s.text.strip())
         for w in s.words:
             words.append(dict(w=w.word.strip(), s=round(w.start, 3), e=round(w.end, 3), p=round(w.probability, 3)))
-    manifest[line["id"]] = dict(text=line["text"], heard=" ".join(heard), dur=round(len(audio) / sr, 3), sr=sr, words=words)
+    manifest[line["id"]] = dict(text=line["text"], heard=" ".join(heard), dur=round(len(audio) / sr, 3), sr=sr,
+                                words=to_script_words(line["text"], words))
     print(f"{line['id']:6s} {len(audio)/sr:5.2f}s  heard: {' '.join(heard)}")
 (VO / "manifest.json").write_text(json.dumps(manifest, indent=1))

@@ -215,6 +215,8 @@ fn sceneAt(uv: vec2f, ca: vec2f) -> vec3f {
       this.device = await adapter.requestDevice({
         requiredLimits: { maxBufferSize: Math.min(adapter.limits.maxBufferSize, 512 * 1024 * 1024) },
       });
+      const info = adapter.info || {};
+      this.adapterInfo = { vendor: info.vendor || '', architecture: info.architecture || '', description: info.description || '' };
       this.device.lost.then((info) => console.error('WebGPU device lost', info.message));
       this.canvas = canvas;
       this.W = width;
@@ -328,7 +330,7 @@ fn sceneAt(uv: vec2f, ca: vec2f) -> vec3f {
         const sw = i === 0 ? this.W : this.mips[i - 1].w;
         const sh = i === 0 ? this.H : this.mips[i - 1].h;
         const u = d.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
-        d.queue.writeBuffer(u, 0, new Float32Array([1 / sw, 1 / sh, i === 0 ? 1 : 0, 0.9]));
+        d.queue.writeBuffer(u, 0, new Float32Array([1 / sw, 1 / sh, i === 0 ? 1 : 0, 1.1]));
         this.downU.push(u);
         this.downBG.push(d.createBindGroup({
           layout: this.downPipe.getBindGroupLayout(0),
@@ -457,7 +459,7 @@ fn sceneAt(uv: vec2f, ca: vec2f) -> vec3f {
       // scene: text + strokes
       if (this.nv > 0) {
         d.queue.writeBuffer(this.vbuf, 0, this.verts, 0, this.nv * FLOATS_PER_VERT);
-        d.queue.writeBuffer(this.ibuf, 0, this.idx, 0, Math.ceil(this.ni / 1) );
+        d.queue.writeBuffer(this.ibuf, 0, this.idx, 0, this.ni + (this.ni & 1));
       }
       if (this.textDirty) {
         d.queue.copyExternalImageToTexture({ source: this.textCanvas }, { texture: this.textTex }, [W, H]);

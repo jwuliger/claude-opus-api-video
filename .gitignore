@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 assets/music/edit.wav
 assets/vo/raw/
+voice-preview/

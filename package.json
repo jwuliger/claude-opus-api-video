@@ -1,0 +1,19 @@
+{
+  "name": "live-motion-labs-promo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Live Motion Labs promo film, drawn live with WebGPU and rendered to MP4 on your GPU.",
+  "type": "module",
+  "scripts": {
+    "setup": "npx playwright install chromium",
+    "build": "node tools/build.mjs",
+    "preview": "node tools/serve.mjs",
+    "render": "node tools/render.mjs",
+    "render:1080": "node tools/render.mjs --width 1920 --height 1080",
+    "render:draft": "node tools/render.mjs --width 1280 --height 720 --fps 30 --crf 22 --preset veryfast --out out/draft-720p.mp4"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "playwright": "^1.48.0"
+  }
+}

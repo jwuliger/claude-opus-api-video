@@ -55,21 +55,21 @@
 
     // Voiceover placement: by a start time, after another clip, or so that one word lands on a musical moment.
     const PLACE = [
-      { id: 'vo01', at: 0.45 },
-      { id: 'vo02', after: 'vo01', gap: 0.3 },
+      { id: 'vo02', word: 'too', at: firstDrop - 0.22 },
+      { id: 'vo01', before: 'vo02', gap: 0.28 },
       { id: 'vo03', at: bar(1, 1.5) },
       { id: 'vo04', word: 'beat', at: bar(3, 1) },
       { id: 'vo05', word: 'change', at: bar(4, 0) },
       { id: 'vo06', at: bar(7, 0) + 0.15 },
       { id: 'lyric', word: 'light', at: bar(9, 0) },
-      { id: 'vo07', at: bar(10, 0) + 0.2 },
-      { id: 'vo08', after: 'vo07', gap: 0.35 },
-      { id: 'vo09', at: bar(13, 0) + 0.2 },
-      { id: 'vo10', word: 'wide', at: bar(14, 0) + 0.12 },
-      { id: 'vo11', at: bar(16, 0) + 0.25 },
+      { id: 'vo07', at: bar(10, 0) + 0.05 },
+      { id: 'vo08', after: 'vo07', gap: 0.3 },
+      { id: 'vo09', after: 'vo08', gap: 0.3 },
+      { id: 'vo10', word: 'wide', at: bar(14, 0) + 0.6 },
+      { id: 'vo11', after: 'vo10', gap: 0.22 },
       { id: 'vo12', at: bar(18, 0) + 0.3 },
-      { id: 'vo13', at: bar(20, 0) + 0.9 },
-      { id: 'vo14', after: 'vo13', gap: 0.45 },
+      { id: 'vo13', at: bar(20, 0) + 0.6 },
+      { id: 'vo14', after: 'vo13', gap: 0.4 },
     ];
     const vo = {};
     for (const p of PLACE) {
@@ -80,6 +80,7 @@
         const w = m.words.find((x) => norm(x.w).startsWith(p.word));
         start = p.at - (w ? w.s : 0);
       } else if (p.after) start = vo[p.after] ? vo[p.after].end + p.gap : p.at;
+      else if (p.before) start = vo[p.before] ? vo[p.before].start - p.gap - m.dur : 0;
       else start = p.at;
       vo[p.id] = {
         id: p.id, start, end: start + m.dur, dur: m.dur, text: m.text,
