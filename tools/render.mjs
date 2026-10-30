@@ -2,10 +2,10 @@
 // frames stream to ffmpeg, the Web Audio mix is muxed in.
 //
 // Usage:
-//   npm run render                     # 3840x2160, 60 fps -> out/live-motion-labs-promo-4k.mp4
+//   npm run render                     # 3840x2160, 60 fps -> out/live-motion-labs-promo-4k.mp4 (GPU encoder when available)
 //   npm run render -- --width 1920 --height 1080 --out out/promo-1080p.mp4
 //   npm run render -- --from 20 --to 26           # just a section (seconds)
-// Options: --fps 60  --crf 16  --preset slow  --encoder x264|nvenc|videotoolbox|qsv|amf
+// Options: --fps 60  --crf 16  --preset medium  --encoder auto|x264|nvenc|videotoolbox|qsv|amf  --ffmpeg <path>
 //          --browser chrome|msedge|chromium  --headed  --software (allow software WebGPU)
 import fs from 'node:fs';
 import http from 'node:http';
@@ -22,8 +22,8 @@ const flag = (k) => argv.includes('--' + k);
 const W = +opt('width', 3840), H = +opt('height', 2160), FPS = +opt('fps', 60);
 const OUT = path.resolve(ROOT, opt('out', W >= 3840 ? 'out/live-motion-labs-promo-4k.mp4' : `out/live-motion-labs-promo-${H}p.mp4`));
 const CRF = opt('crf', W >= 3840 ? '16' : '17');
-const PRESET = opt('preset', 'slow');
-const ENC = opt('encoder', 'x264');
+const PRESET = opt('preset', 'medium');
+let ENC = opt('encoder', 'auto'); // auto: GPU hardware encoder when available, else x264
 
 // Find a working ffmpeg: --ffmpeg <path>, then the ffmpeg-static package (downloading its binary if npm skipped
 // that step), then ffmpeg on PATH. Fails early with clear instructions, before any rendering starts.
@@ -82,7 +82,7 @@ async function main() {
       res.setHeader('access-control-allow-origin', '*');
       try {
         if (req.url.startsWith('/audio')) await onAudio(body);
-        else if (req.url.startsWith('/frame')) await onFrame(body, +new URL(req.url, 'http://x').searchParams.get('i'));
+        else if (req.url.startsWith('/frame')) { const q = new URL(req.url, 'http://x').searchParams; await onFrame(body, +q.get('i'), +q.get('draw'), +q.get('wait')); }
         res.writeHead(200); res.end('ok');
       } catch (e) { console.error(e); res.writeHead(500); res.end(String(e)); }
     });
@@ -110,6 +110,17 @@ async function main() {
   const info = await pg.evaluate(() => window.__info);
   const soft = /swiftshader|llvmpipe|software/i.test(JSON.stringify(info.adapter));
   console.log(`WebGPU adapter: ${info.adapter.vendor} ${info.adapter.architecture} ${info.adapter.description}`.trim());
+  if (ENC === 'auto') {
+    // encoding 4K on the CPU is the slow part; use the GPU's video encoder when ffmpeg has it
+    const encoders = spawnSync(ff, ['-hide_banner', '-encoders'], { encoding: 'utf8' }).stdout || '';
+    const vendor = `${info.adapter.vendor} ${info.adapter.description}`.toLowerCase();
+    if (/nvidia/.test(vendor) && encoders.includes('h264_nvenc')) ENC = 'nvenc';
+    else if (process.platform === 'darwin' && encoders.includes('h264_videotoolbox')) ENC = 'videotoolbox';
+    else if (/intel/.test(vendor) && encoders.includes('h264_qsv')) ENC = 'qsv';
+    else if (/amd|ati/.test(vendor) && encoders.includes('h264_amf')) ENC = 'amf';
+    else ENC = 'x264';
+  }
+  console.log(`Encoder: ${ENC}${ENC === 'x264' ? ` (CPU, preset ${PRESET}; add --encoder nvenc|videotoolbox|qsv|amf to use the GPU)` : ' (GPU hardware encoder)'}`);
   if (soft && !flag('software')) {
     console.warn('\nWARNING: Chrome is using SOFTWARE WebGPU (no GPU). Rendering will be very slow.\n' +
       '  Try: --headed, or --browser chrome / --browser msedge, and make sure hardware acceleration is on.\n' +
@@ -130,7 +141,7 @@ async function main() {
 
   // 2) video frames -> ffmpeg
   const ffArgs = [
-    '-y', '-hide_banner', '-loglevel', 'error', '-stats',
+    '-y', '-hide_banner', '-loglevel', 'error', '-nostats',
     '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', `${W}x${H}`, '-framerate', String(FPS), '-i', 'pipe:0',
     '-ss', String(from / FPS), '-t', String((to - from) / FPS), '-i', tmpAudio,
     '-map', '0:v', '-map', '1:a',
@@ -147,14 +158,19 @@ async function main() {
   ffDone.catch(() => {});
   let n = 0, next = from;
   const tStart = Date.now();
-  onFrame = async (body, i) => {
+  // timing per frame: draw = page builds + GPU renders + reads back; send = page waits for the previous upload;
+  // encode = waiting for ffmpeg to accept the frame. The biggest number is the bottleneck.
+  let sumDraw = 0, sumSend = 0, sumEnc = 0;
+  onFrame = async (body, i, draw, wait) => {
     if (i !== next) throw new Error(`frame order ${i} != ${next}`);
     next++;
+    const w0 = Date.now();
     if (!proc.stdin.write(body)) await new Promise((r) => proc.stdin.once('drain', r));
+    sumEnc += Date.now() - w0; sumDraw += draw || 0; sumSend += wait || 0;
     n++;
-    if (n % FPS === 0 || i === to - 1) {
+    if (n % 30 === 0 || i === to - 1) {
       const el = (Date.now() - tStart) / 1000, rate = n / el, left = (to - from - n) / rate;
-      process.stdout.write(`\r  frame ${i + 1}/${to}  ${rate.toFixed(1)} fps  eta ${Math.ceil(left)} s   `);
+      console.log(`  frame ${i + 1}/${to}  ${rate.toFixed(2)} fps  eta ${Math.ceil(left / 60)} min  |  per frame: draw ${(sumDraw / n).toFixed(0)} ms, send ${(sumSend / n).toFixed(0)} ms, encode ${(sumEnc / n).toFixed(0)} ms`);
     }
   };
   await pg.evaluate(([a, b]) => window.__renderFrames(a, b), [from, to]);
