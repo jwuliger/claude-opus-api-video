@@ -56,7 +56,7 @@
   const canvas = document.getElementById('film');
   const R = new LML.Renderer();
   try {
-    await R.init(canvas, W, H, { capture: RENDER });
+    await R.init(canvas, W, H, { capture: RENDER, ring: +qs.get('ring') || 6 });
   } catch (e) {
     status('This film is drawn live with WebGPU. Please open it in a recent Chrome, Edge or Safari. (' + e.message + ')');
     throw e;
@@ -110,21 +110,31 @@
       return true;
     };
     window.__renderFrames = async (from, to) => {
-      let pending = null, sendWait = 0;
-      for (let i = from; i < to; i++) {
-        const t0 = performance.now();
-        const bytes = await drawAt(i / FPS, i, SHUTTER);
-        const draw = performance.now() - t0;
+      // keep up to R.ring frames in flight: draw ahead while earlier frames come back from the GPU
+      const inflight = [];
+      let pending = null, sumDraw = 0, sumWait = 0, n = 0;
+      const flush = async () => {
+        const f = inflight.shift();
         const t1 = performance.now();
+        const bytes = await f.bytes;
         if (pending) await pending;
-        sendWait = performance.now() - t1;
-        pending = fetch(`${server}/frame?i=${i}&draw=${draw.toFixed(1)}&wait=${sendWait.toFixed(1)}`, { method: 'POST', body: bytes })
+        const wait = performance.now() - t1;
+        sumWait += wait; n++;
+        pending = fetch(`${server}/frame?i=${f.i}&draw=${(sumDraw / n).toFixed(1)}&wait=${(sumWait / n).toFixed(1)}`, { method: 'POST', body: bytes })
           .then((r) => { if (!r.ok) throw new Error('frame rejected'); });
+      };
+      for (let i = from; i < to; i++) {
+        if (inflight.length >= R.ring) await flush();
+        const t0 = performance.now();
+        const r = await drawAt(i / FPS, i, SHUTTER);
+        sumDraw += performance.now() - t0;
+        inflight.push({ i, bytes: r.bytes });
       }
+      while (inflight.length) await flush();
       if (pending) await pending;
       return true;
     };
-    window.__still = async (t) => { await drawAt(t, Math.round(t * FPS), 0.5 / FPS); return true; };
+    window.__still = async (t) => { const r = await drawAt(t, Math.round(t * FPS), 0.5 / FPS); await r.bytes; return true; };
     window.__ready = true;
     status('');
     return;

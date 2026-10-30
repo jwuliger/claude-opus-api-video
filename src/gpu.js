@@ -223,6 +223,7 @@ fn sceneAt(uv: vec2f, ca: vec2f) -> vec3f {
       this.H = height;
       this.S = width / 1920; // design -> pixels
       this.capture = !!opts.capture;
+      this.ringSize = opts.ring;
       canvas.width = width;
       canvas.height = height;
       this.ctx = canvas.getContext('webgpu');
@@ -264,7 +265,10 @@ fn sceneAt(uv: vec2f, ca: vec2f) -> vec3f {
       }
       if (this.capture) {
         this.outTex = this._tex(W, H, 'rgba8unorm', GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC);
-        this.readBuf = d.createBuffer({ size: W * H * 4, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ });
+        // a ring of readback buffers: several frames can be on their way back from the GPU at once
+        this.ring = Math.max(1, this.ringSize || 6);
+        this.readBufs = Array.from({ length: this.ring }, () => d.createBuffer({ size: W * H * 4, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ }));
+        this.ringIdx = 0;
       }
       this.sampler = d.createSampler({ magFilter: 'linear', minFilter: 'linear', addressModeU: 'clamp-to-edge', addressModeV: 'clamp-to-edge' });
 
@@ -504,15 +508,21 @@ fn sceneAt(uv: vec2f, ca: vec2f) -> vec3f {
         const p = enc.beginRenderPass({ colorAttachments: [{ view: target.createView(), loadOp: 'clear', storeOp: 'store', clearValue: [0, 0, 0, 1] }] });
         p.setPipeline(this.compPipe); p.setBindGroup(0, this.compBG); p.draw(3); p.end();
       }
+      let rb = null;
       if (this.capture) {
-        enc.copyTextureToBuffer({ texture: this.outTex }, { buffer: this.readBuf, bytesPerRow: W * 4 }, [W, H]);
+        rb = this.readBufs[this.ringIdx];
+        this.ringIdx = (this.ringIdx + 1) % this.ring;
+        enc.copyTextureToBuffer({ texture: this.outTex }, { buffer: rb, bytesPerRow: W * 4 }, [W, H]);
       }
       d.queue.submit([enc.finish()]);
       if (this.capture) {
-        await this.readBuf.mapAsync(GPUMapMode.READ);
-        const bytes = new Uint8Array(this.readBuf.getMappedRange()).slice();
-        this.readBuf.unmap();
-        return bytes;
+        // returns immediately; the caller awaits .bytes later (must do so before this buffer comes round again)
+        const bytes = rb.mapAsync(GPUMapMode.READ).then(() => {
+          const out = new Uint8Array(rb.getMappedRange()).slice();
+          rb.unmap();
+          return out;
+        });
+        return { bytes };
       }
       return null;
     }

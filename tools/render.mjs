@@ -91,7 +91,10 @@ async function main() {
   const base = `http://127.0.0.1:${server.address().port}`;
 
   const { chromium } = await loadPlaywright();
-  const browserArgs = ['--enable-unsafe-webgpu', '--enable-gpu', '--ignore-gpu-blocklist', '--enable-features=Vulkan,WebGPU', '--disable-gpu-sandbox', '--autoplay-policy=no-user-gesture-required'];
+  const browserArgs = ['--enable-unsafe-webgpu', '--enable-gpu', '--ignore-gpu-blocklist', '--enable-features=Vulkan,WebGPU', '--disable-gpu-sandbox', '--autoplay-policy=no-user-gesture-required',
+    // never throttle the render page (headless pages can be treated as hidden and woken only once per second)
+    '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows',
+    '--disable-features=IntensiveWakeUpThrottling,CalculateNativeWinOcclusion', '--disable-frame-rate-limit'];
   const channel = opt('browser', process.platform === 'linux' ? undefined : 'chrome');
   const launch = { headless: !flag('headed'), args: browserArgs };
   if (channel && channel !== 'chromium') launch.channel = channel;
@@ -105,7 +108,7 @@ async function main() {
   const pg = await ctx.newPage();
   pg.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') console.log('[page]', m.text()); });
   pg.on('pageerror', (e) => console.error('[page error]', e.message));
-  await pg.goto(`${base}/?render=1&w=${W}&h=${H}&fps=${FPS}${opt('shutter') ? '&shutter=' + opt('shutter') : ''}&server=${encodeURIComponent(base)}`);
+  await pg.goto(`${base}/?render=1&ring=${opt('ring', 6)}&w=${W}&h=${H}&fps=${FPS}${opt('shutter') ? '&shutter=' + opt('shutter') : ''}&server=${encodeURIComponent(base)}`);
   await pg.waitForFunction(() => window.__ready === true, null, { timeout: 120000 });
   const info = await pg.evaluate(() => window.__info);
   const soft = /swiftshader|llvmpipe|software/i.test(JSON.stringify(info.adapter));
@@ -170,7 +173,7 @@ async function main() {
     n++;
     if (n % 30 === 0 || i === to - 1) {
       const el = (Date.now() - tStart) / 1000, rate = n / el, left = (to - from - n) / rate;
-      console.log(`  frame ${i + 1}/${to}  ${rate.toFixed(2)} fps  eta ${Math.ceil(left / 60)} min  |  per frame: draw ${(sumDraw / n).toFixed(0)} ms, send ${(sumSend / n).toFixed(0)} ms, encode ${(sumEnc / n).toFixed(0)} ms`);
+      console.log(`  frame ${i + 1}/${to}  ${rate.toFixed(2)} fps  eta ${Math.ceil(left / 60)} min  |  per frame: draw ${(draw || 0).toFixed(0)} ms, gpu wait ${(wait || 0).toFixed(0)} ms, encode ${(sumEnc / n).toFixed(0)} ms`);
     }
   };
   await pg.evaluate(([a, b]) => window.__renderFrames(a, b), [from, to]);
