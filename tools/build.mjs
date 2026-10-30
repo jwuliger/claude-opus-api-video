@@ -20,6 +20,7 @@ export function build(out = OUT) {
   add('music/analysis.json');
   add('music/edit.flac');
   add('brand/logo-mark.json');
+  add('brand/hand.json');
   add('vo/manifest.json');
   const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/vo/manifest.json'), 'utf8'));
   for (const id of Object.keys(manifest)) add(`vo/${id}.wav`);
