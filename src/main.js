@@ -118,7 +118,8 @@
         const t1 = performance.now();
         if (pending) await pending;
         sendWait = performance.now() - t1;
-        pending = fetch(`${server}/frame?i=${i}&draw=${draw.toFixed(1)}&wait=${sendWait.toFixed(1)}`, { method: 'POST', body: bytes })
+        // a Blob body uploads ~10x faster than a raw 33 MB byte array (4K frame) in Chrome's fetch
+        pending = fetch(`${server}/frame?i=${i}&draw=${draw.toFixed(1)}&wait=${sendWait.toFixed(1)}`, { method: 'POST', body: new Blob([bytes]) })
           .then((r) => { if (!r.ok) throw new Error('frame rejected'); });
       }
       if (pending) await pending;
