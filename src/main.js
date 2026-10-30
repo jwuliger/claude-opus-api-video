@@ -36,10 +36,11 @@
     const analysis = await get('music/analysis.json', 'json');
     const manifest = await get('vo/manifest.json', 'json');
     const logo = await get('brand/logo-mark.json', 'json');
+    const hand = await get('brand/hand.json', 'json');
     const voData = {};
     for (const id of Object.keys(manifest)) voData[id] = await get(`vo/${id}.wav`);
     const music = await get('music/edit.flac');
-    return { fonts, analysis, manifest, logo, voData, music };
+    return { fonts, analysis, manifest, logo, hand, voData, music };
   }
 
   let A;

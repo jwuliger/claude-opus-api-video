@@ -41,28 +41,6 @@
     return resample(arcPts(cx, cy, r, a0, a0 + TAU * turns, [], rx), 4);
   }
 
-  // The musician's hand, seen from the back, index finger pointing down (tip at the origin). One continuous contour.
-  const HAND = {
-    contour: [[-150, -600], [-152, -500], [-150, -420], [-160, -372], [-184, -338], [-196, -294], [-186, -258], [-166, -244], [-140, -250], [-112, -270], [-74, -282],
-      [-44, -262], [-34, -220], [-32, -150], [-32, -80], [-30, -30], [-20, -8], [0, 0], [20, -8], [30, -30], [32, -80], [32, -150], [33, -200],
-      [44, -214], [66, -206], [88, -214], [102, -226], [120, -218], [140, -224], [154, -236], [170, -232], [184, -246], [192, -272], [194, -330], [188, -420], [182, -500], [178, -600]],
-    thumb: [[-74, -282], [-112, -330], [-150, -372]],
-    folds: [[[66, -206], [64, -250]], [[120, -218], [118, -256]], [[170, -232], [168, -264]]],
-    nail: [[-19, -56], [-20, -24], [-12, -12], [0, -9], [12, -12], [20, -24], [19, -56]],
-    creases: [[[-20, -120], [0, -124], [20, -120]], [[-22, -172], [0, -177], [22, -172]]],
-    cuff: [[-178, -560], [0, -578], [196, -560]],
-  };
-
-  function buildPaths() {
-    // longer, more elegant index finger: stretch below the knuckles, shift the rest of the hand up
-    const fx = (pts) => pts.map(([x, y]) => [x, y >= -230 ? y * 1.3 : y - 69]);
-    const sp = (pts, n = 10) => resample(spline(fx(pts), n), 3);
-    return {
-      contour: sp(HAND.contour, 12), thumb: sp(HAND.thumb), nail: sp(HAND.nail, 6), cuff: sp(HAND.cuff, 12),
-      folds: HAND.folds.map((f) => sp(f, 6)), creases: HAND.creases.map((c) => sp(c, 6)),
-    };
-  }
-
   class Film {
     constructor(R, S, assets) {
       this.R = R;
@@ -72,7 +50,8 @@
       this.b = b;
       this.drop = S.firstDrop;
       this.end = S.DURATION;
-      this.hand = buildPaths();
+      // the musician's hand: anatomical line art traced by tools/hand.py (mm, finger tip at the origin)
+      this.hand = assets.hand.lines.map((l) => resample(l.pts.map(([x, y]) => [x * 3.05, y * 3.05]), 3));
       this.button = { c: [958, 650], r: 92 };
       this.buttonCircle = circle(958, 650, 92, -2.2);
       this.buttonTri = resample([[936, 614], [1002, 650], [936, 686], [936, 614]].map((p) => p), 3);
@@ -294,18 +273,14 @@
       const hm = this.handMatrix(t, m);
       const erase = ease.inOutSine(clamp((t - (d + 0.05)) / 1.0));
       const col = mix3(C.blue, C.ice, 0.35);
-      const P = this.hand;
-      const g = 1.6;
+      const [outline, ...inner] = this.hand;
       // a single spark appears, then becomes the line
-      if (t < 0.6) spark(R, hm, -150, -669, 2.2, C.ice, 7 * smooth(0.12, 0.4, t));
+      if (t < 0.6) spark(R, hm, outline.p[0], outline.p[1], 2.2, C.ice, 7 * smooth(0.12, 0.4, t));
       const draw = (path, t0, t1, w, seed, extra = {}) => stroke(R, path, {
-        m: hm, t, seed, w, col, gain: g, reveal: ease.inOut(clamp((t - t0) / (t1 - t0))), from: erase, ...extra,
+        m: hm, t, seed, w, col, gain: 1.6, reveal: ease.inOut(clamp((t - t0) / (t1 - t0))), from: erase, ...extra,
       });
-      draw(P.contour, 0.3, 2.7, 2.0, 1, { taper: 0.06 });
-      draw(P.thumb, 2.25, 2.65, 1.6, 2);
-      draw(P.nail, 2.7, 2.98, 1.2, 7);
-      P.creases.forEach((c, i) => draw(c, 2.8 + i * 0.08, 3.0 + i * 0.08, 1.0, 8 + i));
-      draw(P.cuff, 2.9, 3.35, 1.5, 10);
+      draw(outline, 0.3, 2.75, 1.9, 1, { taper: 0.04 });
+      inner.forEach((p, i) => draw(p, 2.35 + i * 0.12, 2.85 + i * 0.12, 1.5, 2 + i));
     }
 
     drawButton(t, m) {
